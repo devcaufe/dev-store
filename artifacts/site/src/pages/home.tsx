@@ -2,71 +2,217 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Code2, TerminalSquare, Database, Cpu, CheckCircle2, Zap, ShieldCheck, Layers } from "lucide-react";
+import {
+  ArrowRight,
+  Code2,
+  TerminalSquare,
+  Database,
+  Cpu,
+  CheckCircle2,
+  Zap,
+  ShieldCheck,
+  Layers,
+  Star,
+  Clock,
+  Lock,
+  RefreshCcw,
+  Sparkles,
+} from "lucide-react";
+import { BrazilFlag } from "@/components/brazil-flag";
 
 export function Home() {
   return (
     <div className="flex flex-col w-full">
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-32 overflow-hidden border-b border-border/40">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/hero-bg.png" 
-            alt="Background" 
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
+      {/* Hero */}
+      <section className="relative pt-20 pb-24 overflow-hidden border-b border-border bg-gradient-to-b from-blue-50/60 via-white to-white">
+        <div className="absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_25%_15%,rgba(37,99,235,0.08),transparent_45%),radial-gradient(circle_at_85%_0%,rgba(15,23,42,0.05),transparent_45%)]" />
+
+        <div className="container relative mx-auto px-4 md:px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge
+              variant="outline"
+              className="mb-6 bg-white text-primary border-blue-200 px-4 py-1.5 inline-flex items-center gap-2"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Vagas abertas para abril/maio
+            </Badge>
+
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.05]">
+              Software profissional, <br className="hidden md:block" />
+              entregue do jeito certo.
+            </h1>
+
+            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Sites complexos, bots de Discord, repositórios e melhorias de
+              sistemas. Desenvolvimento sério, com prazo, garantia e
+              pagamento seguro via PIX.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
+              <Link href="/solicitar">
+                <Button
+                  size="lg"
+                  className="h-12 px-7 text-base font-semibold shadow-md shadow-blue-600/20"
+                  data-testid="button-hero-cta"
+                >
+                  Solicitar meu projeto <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="#como-funciona">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 px-7 text-base font-semibold border-slate-300 text-slate-900 hover:bg-slate-50"
+                >
+                  Ver como funciona
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-slate-600">
+              <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Pagamento via PIX</span>
+              <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Confirmação automática</span>
+              <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Garantia de entrega</span>
+              <span className="inline-flex items-center gap-2"><BrazilFlag className="w-4 h-3" /> Feito no Brasil</span>
+            </div>
+          </div>
         </div>
-        
-        <div className="container relative z-10 mx-auto px-4 md:px-6 flex flex-col items-center text-center">
-          <Badge variant="outline" className="mb-6 border-primary/30 text-primary bg-primary/10 px-4 py-1.5 backdrop-blur-sm">
-            Soluções de Engenharia de Software
-          </Badge>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl text-white mb-6">
-            Código complexo, <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-              soluções elegantes.
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-            Desenvolvimento profissional de alta performance. De sites elaborados a bots para Discord e arquitetura de sistemas.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link href="/solicitar" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold h-12 px-8">
-                Solicitar Projeto <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/suporte" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full h-12 px-8 border-secondary/50 text-white hover:bg-secondary/10">
-                Como Funciona
+      </section>
+
+      {/* Trust strip */}
+      <section className="border-b border-border bg-white">
+        <div className="container mx-auto px-4 md:px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {stats.map((s, i) => (
+            <div key={i}>
+              <p className="text-3xl font-bold text-slate-900">{s.value}</p>
+              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Services */}
+      <section className="py-24 bg-slate-50/60">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <Badge variant="outline" className="bg-white text-primary border-blue-200 mb-4">Especialidades</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              O que entregamos para você
+            </h2>
+            <p className="text-slate-600 text-lg">
+              Cada projeto é construído sob medida, com código limpo, documentação e
+              garantia de funcionamento.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {services.map((s, i) => (
+              <Card
+                key={i}
+                className="bg-white border-border hover:border-primary/40 hover:shadow-lg hover:shadow-blue-600/5 transition-all"
+                data-testid={`card-service-${i}`}
+              >
+                <CardContent className="p-6 flex flex-col">
+                  <div className="w-11 h-11 rounded-lg bg-blue-50 text-primary flex items-center justify-center mb-5">
+                    <s.icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 mb-2">{s.title}</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed mb-4 flex-1">
+                    {s.description}
+                  </p>
+                  <p className="text-xs font-semibold text-primary">A partir de {s.from}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link href="/solicitar">
+              <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-white">
+                Solicitar orçamento sob medida <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Services Grid */}
-      <section className="py-24 bg-background relative">
-        <div className="absolute inset-0 bg-secondary/5 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)] pointer-events-none" />
-        <div className="container mx-auto px-4 md:px-6 relative z-10">
-          <div className="mb-16 md:text-center max-w-3xl md:mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Especialidades</h2>
-            <p className="text-muted-foreground text-lg">Domínio técnico sobre múltiplas plataformas para entregar exatamente o que seu negócio precisa.</p>
+      {/* Process */}
+      <section id="como-funciona" className="py-24 bg-white border-y border-border">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <Badge variant="outline" className="bg-blue-50 text-primary border-blue-200 mb-4">Processo simples</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Do briefing ao deploy em 3 passos
+            </h2>
+            <p className="text-slate-600 text-lg">
+              Sem reuniões intermináveis. Você descreve o que precisa, paga via PIX e nós entregamos.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {services.map((s, i) => (
-              <Card key={i} className="bg-card/50 border-card-border backdrop-blur-sm hover:border-primary/50 transition-colors group overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-1 h-full bg-secondary group-hover:bg-primary transition-colors" />
-                <CardContent className="p-8 flex flex-col items-start text-left">
-                  <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <s.icon className="w-6 h-6 text-primary" />
+          <div className="grid md:grid-cols-3 gap-6">
+            {process.map((p, i) => (
+              <div key={i} className="relative bg-slate-50/60 border border-border rounded-xl p-6">
+                <span className="absolute -top-3 left-6 bg-primary text-primary-foreground text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-md">
+                  {i + 1}
+                </span>
+                <p.icon className="w-6 h-6 text-primary mb-4" />
+                <h3 className="font-bold text-slate-900 mb-2">{p.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Guarantees */}
+      <section className="py-20 bg-slate-50/60">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid md:grid-cols-4 gap-5">
+            {guarantees.map((g, i) => (
+              <div key={i} className="flex items-start gap-3 p-5 bg-white border border-border rounded-lg">
+                <div className="w-10 h-10 rounded-md bg-blue-50 text-primary flex items-center justify-center shrink-0">
+                  <g.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-900 text-sm">{g.title}</p>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">{g.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 bg-white border-y border-border">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <Badge variant="outline" className="bg-blue-50 text-primary border-blue-200 mb-4">Depoimentos</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              O que clientes dizem
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <Card key={i} className="bg-white border-border">
+                <CardContent className="p-6">
+                  <div className="flex gap-0.5 mb-4 text-amber-400">
+                    {Array.from({ length: 5 }).map((_, n) => (
+                      <Star key={n} className="w-4 h-4 fill-current" />
+                    ))}
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{s.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {s.description}
+                  <p className="text-slate-700 leading-relaxed mb-5 text-[15px]">
+                    &ldquo;{t.quote}&rdquo;
                   </p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border">
+                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
+                      {t.initials}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900 text-sm">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -74,79 +220,110 @@ export function Home() {
         </div>
       </section>
 
-      {/* Showcase / Social Proof */}
-      <section className="py-24 bg-muted/20 border-y border-border/40">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-col lg:flex-row gap-12 items-center">
-            <div className="flex-1 space-y-8">
-              <h2 className="text-3xl md:text-4xl font-bold">O Processo DevCaufe</h2>
-              <div className="space-y-6">
-                {[
-                  { icon: Zap, title: "Análise Rápida", desc: "Entendemos sua necessidade e definimos escopo e orçamento claros." },
-                  { icon: ShieldCheck, title: "Desenvolvimento Seguro", desc: "Código limpo, estruturado e com boas práticas da indústria." },
-                  { icon: Layers, title: "Entrega Completa", desc: "Você recebe o sistema funcionando, documentado e pronto para produção." }
-                ].map((step, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                      <step.icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-white mb-1">{step.title}</h4>
-                      <p className="text-muted-foreground">{step.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex-1 w-full grid gap-4 grid-cols-2 relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-secondary/20 to-primary/20 blur-3xl -z-10 rounded-full opacity-50" />
-              <img src="/showcase-1.png" alt="Project 1" className="rounded-xl object-cover w-full h-48 border border-border shadow-2xl col-span-2" />
-              <img src="/showcase-2.png" alt="Project 2" className="rounded-xl object-cover w-full h-40 border border-border shadow-xl" />
-              <img src="/showcase-3.png" alt="Project 3" className="rounded-xl object-cover w-full h-40 border border-border shadow-xl" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background z-0" />
-        <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Pronto para começar?</h2>
-          <p className="text-xl text-muted-foreground mb-10">
-            Transforme sua ideia em uma aplicação robusta e escalável. 
+      {/* Final CTA */}
+      <section className="py-24 bg-slate-900 text-white">
+        <div className="container mx-auto px-4 md:px-6 text-center max-w-3xl">
+          <h2 className="text-3xl md:text-5xl font-bold mb-5 tracking-tight">
+            Pronto para tirar seu projeto do papel?
+          </h2>
+          <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
+            Descreva o que você precisa, defina seu orçamento e receba um link
+            de pagamento PIX seguro em segundos.
           </p>
           <Link href="/solicitar">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 px-10 text-lg shadow-[0_0_40px_rgba(0,229,255,0.3)] transition-shadow hover:shadow-[0_0_60px_rgba(0,229,255,0.5)]">
-              Iniciar Projeto Agora
+            <Button
+              size="lg"
+              className="h-14 px-10 text-base font-semibold bg-primary hover:bg-blue-500 text-white shadow-xl shadow-blue-500/30"
+              data-testid="button-final-cta"
+            >
+              Iniciar projeto agora <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
+          <p className="text-xs text-slate-400 mt-6 inline-flex items-center gap-2">
+            <Lock className="w-3.5 h-3.5" /> Pagamento seguro via PIX &middot; Mercado Pago
+          </p>
         </div>
       </section>
     </div>
   );
 }
 
+const stats = [
+  { value: "+50", label: "Projetos entregues" },
+  { value: "98%", label: "Clientes satisfeitos" },
+  { value: "24h", label: "Resposta média" },
+  { value: "100%", label: "Pagamento seguro" },
+];
+
 const services = [
   {
     title: "Sites Complexos",
     icon: TerminalSquare,
-    description: "Desenvolvimento de aplicações web interativas, dashboards, painéis administrativos e landing pages de alta conversão."
+    description: "Aplicações web, dashboards, painéis administrativos e landing pages de alta conversão.",
+    from: "R$ 800",
   },
   {
     title: "Bots de Discord",
     icon: Code2,
-    description: "Bots personalizados com sistemas de economia, moderação avançada, integração de APIs e painéis web de controle."
+    description: "Bots com economia, moderação avançada, integração de APIs e painéis web de controle.",
+    from: "R$ 350",
   },
   {
-    title: "Repositórios & Arquitetura",
+    title: "Arquitetura & Repos",
     icon: Database,
-    description: "Estruturação de repositórios profissionais, CI/CD, configuração de banco de dados e arquitetura de backend."
+    description: "Estruturação de repositórios, CI/CD, banco de dados e arquitetura backend.",
+    from: "R$ 500",
   },
   {
     title: "Melhorias em Sistemas",
     icon: Cpu,
-    description: "Refatoração de código, otimização de performance, correção de bugs estruturais e adição de novas features em projetos existentes."
-  }
+    description: "Refatoração, otimização de performance, correção de bugs e novas features.",
+    from: "R$ 300",
+  },
+];
+
+const process = [
+  {
+    icon: Zap,
+    title: "1. Você descreve o projeto",
+    desc: "Conte o que precisa em detalhes. Categoria, escopo e orçamento — leva menos de 3 minutos.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "2. Pagamento PIX seguro",
+    desc: "Receba um QR Code único do Mercado Pago. A confirmação é automática em segundos.",
+  },
+  {
+    icon: Layers,
+    title: "3. Entregamos no prazo",
+    desc: "Você recebe o sistema funcionando, com documentação e suporte de configuração.",
+  },
+];
+
+const guarantees = [
+  { icon: Lock, title: "Pagamento seguro", desc: "PIX processado pelo Mercado Pago, com criptografia ponta a ponta." },
+  { icon: Clock, title: "Prazo combinado", desc: "Cronograma definido antes de começar, sem surpresas." },
+  { icon: RefreshCcw, title: "Reembolso garantido", desc: "Devolução integral antes do desenvolvimento começar." },
+  { icon: ShieldCheck, title: "Código com qualidade", desc: "Código limpo, comentado e seguindo boas práticas da indústria." },
+];
+
+const testimonials = [
+  {
+    quote: "Entrega impecável. O bot do Discord ficou muito além das minhas expectativas, com painel próprio.",
+    name: "Lucas M.",
+    role: "Comunidade gamer",
+    initials: "LM",
+  },
+  {
+    quote: "Receberam meu briefing de manhã e à noite eu já tinha o link de pagamento. Profissional do começo ao fim.",
+    name: "Renata S.",
+    role: "Loja online",
+    initials: "RS",
+  },
+  {
+    quote: "Refatoraram o backend do meu sistema antigo e a performance melhorou demais. Recomendo.",
+    name: "Tiago A.",
+    role: "Startup SaaS",
+    initials: "TA",
+  },
 ];

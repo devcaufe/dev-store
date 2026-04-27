@@ -1,4 +1,6 @@
 import { useParams, Link } from "wouter";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGetOrder, getGetOrderQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,12 +21,33 @@ export function OrderSuccess() {
   const publicToken = params.publicToken || "";
   const { toast } = useToast();
 
+  const queryClient = useQueryClient();
   const { data: order, isLoading, error } = useGetOrder(publicToken, {
     query: {
       enabled: !!publicToken,
       queryKey: getGetOrderQueryKey(publicToken),
+      // Poll while still awaiting payment so the page reflects automatic
+      // confirmation from Mercado Pago without requiring a manual refresh.
+      refetchInterval: (q) => {
+        const status = (q.state.data as { status?: string } | undefined)?.status;
+        return status === "awaiting_payment" ? 5000 : false;
+      },
     }
   });
+
+  // Toast on transition to "paid".
+  useEffect(() => {
+    if (order?.status === "paid") {
+      toast({
+        title: "Pagamento confirmado!",
+        description: "Recebemos seu pagamento. Em breve entraremos em contato.",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?.status]);
+
+  // Silence unused warning when query client is invalidated elsewhere.
+  void queryClient;
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -66,17 +89,32 @@ export function OrderSuccess() {
   const isPix = order.paymentMethod === "pix" && order.pix;
   const isBtc = order.paymentMethod === "btc" && order.btc;
   const isCard = order.paymentMethod === "card";
+  const isPaid = order.status === "paid";
+  const isCancelled = order.status === "cancelled";
 
   return (
     <div className="container mx-auto px-4 py-16 md:py-24 max-w-4xl animate-in fade-in duration-500">
       
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 text-primary mb-6 border-2 border-primary/50">
+        <div className={
+          "inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 border-2 " +
+          (isPaid
+            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+            : isCancelled
+              ? "bg-red-50 text-red-600 border-red-200"
+              : "bg-primary/10 text-primary border-primary/30")
+        }>
           <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h1 className="text-4xl font-bold mb-4">Pedido Registrado!</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          {isPaid ? "Pagamento Confirmado!" : isCancelled ? "Pagamento Cancelado" : "Pedido Registrado!"}
+        </h1>
         <p className="text-lg text-muted-foreground">
-          Falta pouco. Complete o pagamento abaixo para darmos início ao projeto.
+          {isPaid
+            ? "Recebemos seu pagamento. Em breve entraremos em contato pelo e-mail informado."
+            : isCancelled
+              ? "Este pagamento foi cancelado. Você pode criar um novo pedido a qualquer momento."
+              : "Falta pouco. Complete o pagamento abaixo para darmos início ao projeto."}
         </p>
       </div>
 
@@ -212,9 +250,13 @@ export function OrderSuccess() {
               
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Status</p>
-                <Badge className="mt-1 bg-secondary text-secondary-foreground">
-                  Aguardando Pagamento
-                </Badge>
+                {isPaid ? (
+                  <Badge className="mt-1 bg-emerald-600 text-white">Pago</Badge>
+                ) : isCancelled ? (
+                  <Badge className="mt-1 bg-red-600 text-white">Cancelado</Badge>
+                ) : (
+                  <Badge className="mt-1 bg-amber-500 text-white">Aguardando Pagamento</Badge>
+                )}
               </div>
               
               <div className="pt-4 mt-2 border-t border-border">

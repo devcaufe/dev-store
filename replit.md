@@ -1,8 +1,9 @@
-# DevCaufe Workspace
+# Dev Store BR Workspace
 
 ## Overview
 
-Plataforma profissional de desenvolvimento digital (DevCaufe Soluções Digitais).
+Plataforma profissional de desenvolvimento digital (Dev Store BR — Soluções
+Digitais). Marca pública = "Dev Store BR" 🇧🇷.
 Cliente envia uma solicitação de projeto, define o valor manualmente e recebe um
 link de pagamento com QR Code PIX dinâmico (BR Code EMV-MPM com CRC16
 recalculado pelo backend), suporte a Bitcoin (BIP21) e placeholder para
@@ -16,10 +17,14 @@ cartão de crédito/débito (a ser plugado a um gateway PCI-compliant).
 - **Banco**: PostgreSQL + Drizzle ORM (`lib/db`)
 - **Validação**: Zod (codegen via Orval a partir de `lib/api-spec/openapi.yaml`)
 - **Pagamentos**:
-  - PIX: gerador EMV-MPM próprio (`artifacts/api-server/src/lib/pix.ts`)
-    com CRC-16/CCITT-FALSE
-  - Bitcoin: BIP21 URI (`artifacts/api-server/src/lib/btc.ts`)
-  - Cartão: stub (requer integração com gateway externo)
+  - PIX (preferido): **Mercado Pago** com confirmação automática via webhook
+    HMAC-verificado (`artifacts/api-server/src/lib/mercadopago.ts` +
+    `artifacts/api-server/src/routes/webhooks.ts`).
+    Requer `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET` configurados como secrets.
+  - PIX (fallback): gerador EMV-MPM próprio (`pix.ts`) com CRC-16/CCITT-FALSE
+    quando MP não está configurado ou indisponível.
+  - Bitcoin: BIP21 URI (`btc.ts`).
+  - Cartão: stub (requer integração com gateway externo).
 
 ## Comandos
 
@@ -30,6 +35,9 @@ cartão de crédito/débito (a ser plugado a um gateway PCI-compliant).
 
 ## Decisões de segurança
 
+- Tokens do Mercado Pago (`MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`) ficam
+  apenas como secrets — nunca em código, nunca logados, nunca enviados ao
+  frontend. Webhook é validado por HMAC antes de qualquer atualização.
 - Dados bancários (agência/conta Nubank) **nunca** são expostos ao frontend.
   São sensíveis e só servem para conciliação interna do dono.
 - BR Code é sempre construído no servidor a partir de um valor validado em

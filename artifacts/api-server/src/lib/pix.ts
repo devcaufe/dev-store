@@ -15,7 +15,10 @@
  */
 
 const PIX_KEY = "devcaufe@gmail.com";
-const MERCHANT_NAME = "Caua Felipe Santanna Da S";
+// Brand name shown on the PIX app when paying via the LOCAL fallback BR Code.
+// When Mercado Pago is configured, the BR Code comes from MP and the merchant
+// name displayed is whatever the MP merchant account is registered as.
+const MERCHANT_NAME = "Dev Store BR";
 const MERCHANT_CITY = "Aracaju";
 const TXID = "***";
 

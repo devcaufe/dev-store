@@ -14,6 +14,7 @@ export const ordersTable = pgTable("orders", {
   paymentMethod: text("payment_method").notNull(),
   status: text("status").notNull().default("pending"),
   pixPayload: text("pix_payload"),
+  mpPaymentId: text("mp_payment_id"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -24,6 +25,7 @@ export const insertOrderSchema = createInsertSchema(ordersTable).omit({
   publicToken: true,
   status: true,
   pixPayload: true,
+  mpPaymentId: true,
   createdAt: true,
 });
 export type InsertOrder = z.infer<typeof insertOrderSchema>;

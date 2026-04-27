@@ -44,11 +44,11 @@ export function Support() {
                 </div>
                 <div>
                   <div className="font-medium text-sm">Discord</div>
-                  <div className="text-xs text-muted-foreground">Comunidade DevCaufe</div>
+                  <div className="text-xs text-muted-foreground">Comunidade Dev Store BR</div>
                 </div>
               </a>
 
-              <a href="mailto:contato@devcaufe.com" className="flex items-center gap-3 w-full p-3 rounded-md bg-card border border-border hover:border-primary/50 transition-colors group">
+              <a href="mailto:contato@devstorebr.com" className="flex items-center gap-3 w-full p-3 rounded-md bg-card border border-border hover:border-primary/50 transition-colors group">
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
                 </div>
@@ -72,7 +72,7 @@ const faqs = [
   },
   {
     q: "Como funciona o pagamento via PIX?",
-    a: "Após confirmar a solicitação, será gerado um QR Code e um código 'Copia e Cola' exclusivo para o seu pedido. O pagamento é processado e validado rapidamente. Guarde o comprovante."
+    a: "Após confirmar a solicitação, será gerado um QR Code e um código 'Copia e Cola' processado pelo Mercado Pago, com confirmação automática em segundos. Sem espera manual."
   },
   {
     q: "Como pagar com Bitcoin?",

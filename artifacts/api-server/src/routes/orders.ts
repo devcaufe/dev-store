@@ -7,6 +7,8 @@ import { buildBtcUri } from "../lib/btc";
 import { renderQrDataUrl } from "../lib/qrcode";
 import { generatePublicToken } from "../lib/tokens";
 import { createOrderLimiter } from "../middlewares/rateLimit";
+import { createMercadoPagoPixCharge, fetchMercadoPagoPayment, mercadoPagoEnabled } from "../lib/mercadopago";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -31,8 +33,29 @@ router.post("/orders", createOrderLimiter, async (req, res, next) => {
     const publicToken = generatePublicToken();
 
     let pixPayload: string | null = null;
+    let mpPaymentId: string | null = null;
+
     if (data.paymentMethod === "pix") {
-      pixPayload = buildPixBrCode(data.amountCents).brCode;
+      // Prefer Mercado Pago (auto-confirmation via webhook). Fall back to the
+      // local BR Code generator if MP is not configured or if the API call
+      // fails — we never want to leave the customer without a way to pay.
+      if (mercadoPagoEnabled()) {
+        try {
+          const charge = await createMercadoPagoPixCharge({
+            amountCents: data.amountCents,
+            description: data.title,
+            payerEmail: data.contactEmail,
+            externalReference: publicToken,
+          });
+          pixPayload = charge.brCode;
+          mpPaymentId = charge.paymentId;
+        } catch (err) {
+          logger.error({ err }, "Mercado Pago PIX charge failed; falling back to local BR Code");
+          pixPayload = buildPixBrCode(data.amountCents).brCode;
+        }
+      } else {
+        pixPayload = buildPixBrCode(data.amountCents).brCode;
+      }
     }
 
     const [inserted] = await db
@@ -48,6 +71,7 @@ router.post("/orders", createOrderLimiter, async (req, res, next) => {
         paymentMethod: data.paymentMethod,
         status: "awaiting_payment",
         pixPayload,
+        mpPaymentId,
       })
       .returning();
 
@@ -89,7 +113,39 @@ router.get("/orders/:publicToken", async (req, res, next) => {
       return;
     }
 
-    const response = await buildOrderResponse(order);
+    // Opportunistic refresh: if the order is still awaiting payment AND we have
+    // an MP payment id, ask Mercado Pago for the latest status. This way the
+    // frontend's polling reflects payment confirmation even if the webhook was
+    // delayed/blocked. Failures here are non-fatal.
+    let current = order;
+    if (
+      current.status === "awaiting_payment" &&
+      current.mpPaymentId &&
+      mercadoPagoEnabled()
+    ) {
+      try {
+        const remote = await fetchMercadoPagoPayment(current.mpPaymentId);
+        if (remote.status === "approved" && current.status !== "paid") {
+          const [updated] = await db
+            .update(ordersTable)
+            .set({ status: "paid" })
+            .where(eq(ordersTable.id, current.id))
+            .returning();
+          if (updated) current = updated;
+        } else if (remote.status === "cancelled" || remote.status === "rejected") {
+          const [updated] = await db
+            .update(ordersTable)
+            .set({ status: "cancelled" })
+            .where(eq(ordersTable.id, current.id))
+            .returning();
+          if (updated) current = updated;
+        }
+      } catch (err) {
+        logger.warn({ err }, "Mercado Pago status refresh failed");
+      }
+    }
+
+    const response = await buildOrderResponse(current);
     res.json(response);
   } catch (err) {
     next(err);
@@ -97,6 +153,7 @@ router.get("/orders/:publicToken", async (req, res, next) => {
 });
 
 interface OrderRow {
+  id: string;
   publicToken: string;
   category: string;
   title: string;
@@ -105,6 +162,7 @@ interface OrderRow {
   status: string;
   createdAt: Date;
   pixPayload: string | null;
+  mpPaymentId: string | null;
 }
 
 async function buildOrderResponse(order: OrderRow) {
@@ -137,7 +195,7 @@ async function buildOrderResponse(order: OrderRow) {
       brCode: order.pixPayload,
       qrImageDataUrl: await renderQrDataUrl(order.pixPayload),
       amountCents: order.amountCents,
-      merchantName: "Caua Felipe Santanna Da S",
+      merchantName: "Dev Store BR",
       merchantCity: "Aracaju",
     };
   } else if (order.paymentMethod === "btc") {
