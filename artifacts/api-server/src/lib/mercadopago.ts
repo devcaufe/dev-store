@@ -89,6 +89,87 @@ export async function createMercadoPagoPixCharge(
   };
 }
 
+interface CreatePreferenceInput {
+  amountCents: number;
+  description: string;
+  payerEmail: string;
+  externalReference: string;
+  successUrl: string;
+  failureUrl: string;
+  pendingUrl: string;
+}
+
+export interface CreatedPreference {
+  preferenceId: string;
+  initPoint: string;
+}
+
+/**
+ * Create a Mercado Pago Checkout Pro preference. The buyer is redirected to
+ * the returned `init_point` and pays with credit/debit card (PIX is also
+ * available there). MP processes everything PCI-compliantly and pays into the
+ * configured MP account; we just react to the webhook.
+ */
+export async function createMercadoPagoPreference(
+  input: CreatePreferenceInput,
+): Promise<CreatedPreference> {
+  const amount = +(input.amountCents / 100).toFixed(2);
+
+  const body = {
+    items: [
+      {
+        title: input.description.slice(0, 256),
+        quantity: 1,
+        currency_id: "BRL",
+        unit_price: amount,
+      },
+    ],
+    payer: { email: input.payerEmail },
+    back_urls: {
+      success: input.successUrl,
+      failure: input.failureUrl,
+      pending: input.pendingUrl,
+    },
+    auto_return: "approved",
+    external_reference: input.externalReference,
+    notification_url: buildNotificationUrl(),
+    statement_descriptor: "DEV STORE BR",
+    payment_methods: {
+      // Cards focus: exclude bank-slip ("ticket") and ATM. PIX is still
+      // available alongside the card forms for the buyer's convenience.
+      excluded_payment_types: [{ id: "ticket" }, { id: "atm" }],
+      installments: 12,
+    },
+    metadata: { external_reference: input.externalReference },
+  };
+
+  const idempotencyKey = crypto.randomUUID();
+  const res = await fetchWithTimeout(`${MP_API}/checkout/preferences`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${mpAccessToken()}`,
+      "Content-Type": "application/json",
+      "X-Idempotency-Key": idempotencyKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    logger.error(
+      { status: res.status, body: text.slice(0, 400) },
+      "MP create preference failed",
+    );
+    throw new Error(`Mercado Pago preference creation failed (${res.status})`);
+  }
+
+  const json = (await res.json()) as MpPreferenceResponse;
+  if (!json.id || !json.init_point) {
+    throw new Error("Mercado Pago preference response missing id/init_point");
+  }
+  return { preferenceId: String(json.id), initPoint: json.init_point };
+}
+
 export interface MpPaymentSnapshot {
   id: string;
   status: string;
@@ -185,4 +266,10 @@ interface MpPaymentResponse {
       ticket_url?: string;
     };
   };
+}
+
+interface MpPreferenceResponse {
+  id?: string;
+  init_point?: string;
+  sandbox_init_point?: string;
 }

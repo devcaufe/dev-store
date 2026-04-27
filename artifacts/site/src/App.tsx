@@ -8,6 +8,7 @@ import { Home } from "@/pages/home";
 import { RequestProject } from "@/pages/request-project";
 import { OrderSuccess } from "@/pages/order";
 import { Support } from "@/pages/support";
+import { ComoFunciona } from "@/pages/como-funciona";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/como-funciona" component={ComoFunciona} />
       <Route path="/solicitar" component={RequestProject} />
       <Route path="/pedido/:publicToken" component={OrderSuccess} />
       <Route path="/suporte" component={Support} />

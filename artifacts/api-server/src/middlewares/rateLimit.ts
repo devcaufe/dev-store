@@ -30,3 +30,18 @@ export const createOrderLimiter = rateLimit({
     code: "RATE_LIMITED",
   },
 });
+
+/**
+ * Generous limit for the live quote estimator (front-end debounces inputs,
+ * but each keystroke can trigger a request — keep the ceiling high).
+ */
+export const quoteEstimateLimiter = rateLimit({
+  windowMs: 60_000, // 1 minute
+  limit: 60, // 60 req/min/IP
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error: "Muitas estimativas em pouco tempo. Aguarde alguns segundos.",
+    code: "RATE_LIMITED",
+  },
+});

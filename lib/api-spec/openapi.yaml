@@ -14,6 +14,8 @@ tags:
     description: Project order requests and payment generation
   - name: payments
     description: Payment instrument helpers (PIX, BTC)
+  - name: quote
+    description: Automatic project price estimation
 paths:
   /healthz:
     get:
@@ -87,6 +89,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /quote/estimate:
+    post:
+      operationId: estimateQuote
+      tags: [quote]
+      summary: Estimate project price from category and description
+      description: |
+        Computes a server-side price estimate based on the project's category,
+        description length and detected complexity keywords. The estimate is
+        deterministic and bounded between R$ 200 and R$ 50.000. Returned as
+        integer cents.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EstimateQuoteBody"
+      responses:
+        "200":
+          description: Estimate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuoteEstimate"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /payments/btc-uri:
     get:
       operationId: getBtcUri
@@ -153,10 +184,6 @@ components:
           type: string
           minLength: 10
           maxLength: 2000
-        amountCents:
-          type: integer
-          minimum: 500
-          maximum: 5000000
         paymentMethod:
           $ref: "#/components/schemas/PaymentMethod"
       required:
@@ -165,8 +192,44 @@ components:
         - category
         - title
         - description
-        - amountCents
         - paymentMethod
+    EstimateQuoteBody:
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/OrderCategory"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+        - category
+        - description
+    QuoteFactor:
+      type: object
+      properties:
+        label:
+          type: string
+        deltaCents:
+          type: integer
+      required:
+        - label
+        - deltaCents
+    QuoteEstimate:
+      type: object
+      properties:
+        amountCents:
+          type: integer
+        baseCents:
+          type: integer
+        factors:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuoteFactor"
+      required:
+        - amountCents
+        - baseCents
+        - factors
     PixPayload:
       type: object
       properties:

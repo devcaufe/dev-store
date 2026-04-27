@@ -7,7 +7,13 @@ import { buildBtcUri } from "../lib/btc";
 import { renderQrDataUrl } from "../lib/qrcode";
 import { generatePublicToken } from "../lib/tokens";
 import { createOrderLimiter } from "../middlewares/rateLimit";
-import { createMercadoPagoPixCharge, fetchMercadoPagoPayment, mercadoPagoEnabled } from "../lib/mercadopago";
+import {
+  createMercadoPagoPixCharge,
+  createMercadoPagoPreference,
+  fetchMercadoPagoPayment,
+  mercadoPagoEnabled,
+} from "../lib/mercadopago";
+import { estimateQuote, type Category } from "../lib/pricing";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -18,22 +24,30 @@ const router: IRouter = Router();
  * Creates a new project order.
  *
  * Security:
- * - Body validated with the generated Zod schema (length, format, range).
- * - Amount range enforced (R$ 5,00 .. R$ 50.000,00) on the schema, NOT trusted
- *   from the client.
+ * - Body validated with the generated Zod schema (length, format).
+ * - Amount is ALWAYS computed server-side from the validated category +
+ *   description (see lib/pricing.ts). The client cannot influence the price.
  * - Rate-limited per IP.
  * - The PIX BR Code is built server-side from the validated amount; we never
  *   accept a client-provided BR Code.
+ * - For card payments we create a Mercado Pago Checkout Pro preference; the
+ *   buyer is redirected to MP and we never touch card data ourselves.
  * - The response only ever exposes the publicToken, never the database UUID.
  */
 router.post("/orders", createOrderLimiter, async (req, res, next) => {
   try {
     const data = CreateOrderBody.parse(req.body);
 
+    // Server-authoritative pricing — we never trust a client-side amount.
+    const quote = estimateQuote(data.category as Category, data.description);
+    const amountCents = quote.amountCents;
+
     const publicToken = generatePublicToken();
 
     let pixPayload: string | null = null;
     let mpPaymentId: string | null = null;
+    let mpPreferenceId: string | null = null;
+    let cardCheckoutUrl: string | null = null;
 
     if (data.paymentMethod === "pix") {
       // Prefer Mercado Pago (auto-confirmation via webhook). Fall back to the
@@ -42,7 +56,7 @@ router.post("/orders", createOrderLimiter, async (req, res, next) => {
       if (mercadoPagoEnabled()) {
         try {
           const charge = await createMercadoPagoPixCharge({
-            amountCents: data.amountCents,
+            amountCents,
             description: data.title,
             payerEmail: data.contactEmail,
             externalReference: publicToken,
@@ -50,11 +64,48 @@ router.post("/orders", createOrderLimiter, async (req, res, next) => {
           pixPayload = charge.brCode;
           mpPaymentId = charge.paymentId;
         } catch (err) {
-          logger.error({ err }, "Mercado Pago PIX charge failed; falling back to local BR Code");
-          pixPayload = buildPixBrCode(data.amountCents).brCode;
+          logger.error(
+            { err },
+            "Mercado Pago PIX charge failed; falling back to local BR Code",
+          );
+          pixPayload = buildPixBrCode(amountCents).brCode;
         }
       } else {
-        pixPayload = buildPixBrCode(data.amountCents).brCode;
+        pixPayload = buildPixBrCode(amountCents).brCode;
+      }
+    } else if (data.paymentMethod === "card") {
+      // Card payments require Mercado Pago. We create a Checkout Pro
+      // preference; the buyer is redirected to MP-hosted checkout that
+      // settles directly into the configured MP account.
+      if (!mercadoPagoEnabled()) {
+        res.status(503).json({
+          error:
+            "Pagamento com cartão indisponível no momento. Por favor, escolha PIX.",
+          code: "CARD_UNAVAILABLE",
+        });
+        return;
+      }
+      try {
+        const orderUrl = buildOrderUrl(publicToken);
+        const pref = await createMercadoPagoPreference({
+          amountCents,
+          description: data.title,
+          payerEmail: data.contactEmail,
+          externalReference: publicToken,
+          successUrl: orderUrl,
+          failureUrl: orderUrl,
+          pendingUrl: orderUrl,
+        });
+        mpPreferenceId = pref.preferenceId;
+        cardCheckoutUrl = pref.initPoint;
+      } catch (err) {
+        logger.error({ err }, "Mercado Pago preference creation failed");
+        res.status(502).json({
+          error:
+            "Não foi possível iniciar o pagamento com cartão. Tente novamente em instantes ou use PIX.",
+          code: "CARD_GATEWAY_ERROR",
+        });
+        return;
       }
     }
 
@@ -67,11 +118,13 @@ router.post("/orders", createOrderLimiter, async (req, res, next) => {
         category: data.category,
         title: data.title,
         description: data.description,
-        amountCents: data.amountCents,
+        amountCents,
         paymentMethod: data.paymentMethod,
         status: "awaiting_payment",
         pixPayload,
         mpPaymentId,
+        mpPreferenceId,
+        cardCheckoutUrl,
       })
       .returning();
 
@@ -163,6 +216,8 @@ interface OrderRow {
   createdAt: Date;
   pixPayload: string | null;
   mpPaymentId: string | null;
+  mpPreferenceId: string | null;
+  cardCheckoutUrl: string | null;
 }
 
 async function buildOrderResponse(order: OrderRow) {
@@ -205,14 +260,29 @@ async function buildOrderResponse(order: OrderRow) {
       qrImageDataUrl: await renderQrDataUrl(btc.uri),
     };
   } else if (order.paymentMethod === "card") {
-    // Card processing requires a real PCI-compliant gateway (Stripe,
-    // MercadoPago, Pagar.me, etc.). We expose a null URL so the frontend can
-    // tell the user the method is being integrated. We never ship a fake
-    // checkout link.
-    base.cardCheckoutUrl = null;
+    base.cardCheckoutUrl = order.cardCheckoutUrl;
   }
 
   return base;
+}
+
+/**
+ * Build the public order URL on the user-facing site. Used as the back_url
+ * Mercado Pago redirects to after the buyer pays.
+ *
+ * Override with PUBLIC_SITE_URL when running in deployment so the buyer is
+ * sent back to the .replit.app (or custom) domain instead of the dev URL.
+ */
+function buildOrderUrl(publicToken: string): string {
+  const explicit = process.env.PUBLIC_SITE_URL;
+  if (explicit) {
+    return `${explicit.replace(/\/$/, "")}/pedido/${publicToken}`;
+  }
+  const domain = process.env.REPLIT_DOMAINS?.split(",")[0];
+  if (domain) {
+    return `https://${domain}/pedido/${publicToken}`;
+  }
+  return `/pedido/${publicToken}`;
 }
 
 export default router;

@@ -3,6 +3,8 @@ import { SiDiscord } from "react-icons/si";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BrazilFlag } from "@/components/brazil-flag";
 
+const LOGO_URL = `${import.meta.env.BASE_URL}logo.png`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
@@ -37,9 +39,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-white/85 backdrop-blur-md">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-bold text-lg tracking-tight text-slate-900 flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-mono text-xs font-bold leading-none">DS</span>
-            </div>
+            <img
+              src={LOGO_URL}
+              alt="Dev Store BR"
+              className="w-9 h-9 rounded-lg object-cover shadow-sm bg-slate-900"
+            />
             <span className="flex items-center gap-2">
               Dev Store BR
               <BrazilFlag className="w-5 h-3.5" />
@@ -47,6 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </Link>
           <nav className="hidden md:flex gap-7 items-center">
             {navItem("/", "Início")}
+            {navItem("/como-funciona", "Como Funciona")}
             {navItem("/solicitar", "Solicitar Projeto")}
             {navItem("/suporte", "Suporte")}
           </nav>
@@ -67,9 +72,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto px-4 md:px-6 py-12 grid gap-8 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-mono text-[10px] font-bold leading-none">DS</span>
-              </div>
+              <img src={LOGO_URL} alt="Dev Store BR" className="w-7 h-7 rounded-md object-cover bg-slate-900" />
               <span className="font-bold text-slate-900">Dev Store BR</span>
               <BrazilFlag className="w-4 h-3" />
             </div>

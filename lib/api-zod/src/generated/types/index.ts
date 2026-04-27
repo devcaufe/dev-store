@@ -9,6 +9,7 @@
 export * from "./btcUriResponse";
 export * from "./createOrderBody";
 export * from "./errorResponse";
+export * from "./estimateQuoteBody";
 export * from "./getBtcUriParams";
 export * from "./healthStatus";
 export * from "./order";
@@ -16,3 +17,5 @@ export * from "./orderCategory";
 export * from "./orderStatus";
 export * from "./paymentMethod";
 export * from "./pixPayload";
+export * from "./quoteEstimate";
+export * from "./quoteFactor";

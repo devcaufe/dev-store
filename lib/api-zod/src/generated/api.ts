@@ -34,9 +34,6 @@ export const createOrderBodyTitleMax = 120;
 export const createOrderBodyDescriptionMin = 10;
 export const createOrderBodyDescriptionMax = 2000;
 
-export const createOrderBodyAmountCentsMin = 500;
-export const createOrderBodyAmountCentsMax = 5000000;
-
 export const CreateOrderBody = zod.object({
   clientName: zod
     .string()
@@ -55,10 +52,6 @@ export const CreateOrderBody = zod.object({
     .string()
     .min(createOrderBodyDescriptionMin)
     .max(createOrderBodyDescriptionMax),
-  amountCents: zod
-    .number()
-    .min(createOrderBodyAmountCentsMin)
-    .max(createOrderBodyAmountCentsMax),
   paymentMethod: zod.enum(["pix", "btc", "card"]),
 });
 
@@ -107,6 +100,38 @@ export const GetOrderResponse = zod.object({
     ])
     .optional(),
   cardCheckoutUrl: zod.union([zod.string(), zod.null()]).optional(),
+});
+
+/**
+ * Computes a server-side price estimate based on the project's category,
+description length and detected complexity keywords. The estimate is
+deterministic and bounded between R$ 200 and R$ 50.000. Returned as
+integer cents.
+
+ * @summary Estimate project price from category and description
+ */
+export const estimateQuoteBodyDescriptionMax = 2000;
+
+export const EstimateQuoteBody = zod.object({
+  category: zod.enum([
+    "website",
+    "discord_bot",
+    "repository",
+    "improvement",
+    "other",
+  ]),
+  description: zod.string().min(1).max(estimateQuoteBodyDescriptionMax),
+});
+
+export const EstimateQuoteResponse = zod.object({
+  amountCents: zod.number(),
+  baseCents: zod.number(),
+  factors: zod.array(
+    zod.object({
+      label: zod.string(),
+      deltaCents: zod.number(),
+    }),
+  ),
 });
 
 /**

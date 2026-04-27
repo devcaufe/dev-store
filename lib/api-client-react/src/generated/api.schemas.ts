@@ -51,12 +51,27 @@ export interface CreateOrderBody {
    * @maxLength 2000
    */
   description: string;
-  /**
-   * @minimum 500
-   * @maximum 5000000
-   */
-  amountCents: number;
   paymentMethod: PaymentMethod;
+}
+
+export interface EstimateQuoteBody {
+  category: OrderCategory;
+  /**
+   * @minLength 1
+   * @maxLength 2000
+   */
+  description: string;
+}
+
+export interface QuoteFactor {
+  label: string;
+  deltaCents: number;
+}
+
+export interface QuoteEstimate {
+  amountCents: number;
+  baseCents: number;
+  factors: QuoteFactor[];
 }
 
 export interface PixPayload {

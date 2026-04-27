@@ -27,10 +27,5 @@ export interface CreateOrderBody {
    * @maxLength 2000
    */
   description: string;
-  /**
-   * @minimum 500
-   * @maximum 5000000
-   */
-  amountCents: number;
   paymentMethod: PaymentMethod;
 }

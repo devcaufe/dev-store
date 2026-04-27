@@ -15,6 +15,8 @@ export const ordersTable = pgTable("orders", {
   status: text("status").notNull().default("pending"),
   pixPayload: text("pix_payload"),
   mpPaymentId: text("mp_payment_id"),
+  mpPreferenceId: text("mp_preference_id"),
+  cardCheckoutUrl: text("card_checkout_url"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

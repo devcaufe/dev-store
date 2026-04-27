@@ -17,6 +17,9 @@ import {
   Lock,
   RefreshCcw,
   Sparkles,
+  ChevronDown,
+  CreditCard,
+  QrCode,
 } from "lucide-react";
 import { BrazilFlag } from "@/components/brazil-flag";
 
@@ -24,30 +27,32 @@ export function Home() {
   return (
     <div className="flex flex-col w-full">
       {/* Hero */}
-      <section className="relative pt-20 pb-24 overflow-hidden border-b border-border bg-gradient-to-b from-blue-50/60 via-white to-white">
-        <div className="absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_25%_15%,rgba(37,99,235,0.08),transparent_45%),radial-gradient(circle_at_85%_0%,rgba(15,23,42,0.05),transparent_45%)]" />
+      <section className="relative pt-20 pb-28 overflow-hidden border-b border-border bg-gradient-to-b from-blue-50/60 via-white to-white">
+        <div className="absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_25%_15%,rgba(37,99,235,0.10),transparent_45%),radial-gradient(circle_at_85%_0%,rgba(15,23,42,0.05),transparent_45%)]" />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 -z-10 opacity-[0.04] [background-image:linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
 
         <div className="container relative mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <Badge
               variant="outline"
-              className="mb-6 bg-white text-primary border-blue-200 px-4 py-1.5 inline-flex items-center gap-2"
+              className="mb-6 bg-white text-primary border-blue-200 px-4 py-1.5 inline-flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-500"
             >
               <Sparkles className="w-3.5 h-3.5" /> Vagas abertas para abril/maio
             </Badge>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.05]">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.05] animate-in fade-in slide-in-from-bottom-3 duration-700">
               Software profissional, <br className="hidden md:block" />
               entregue do jeito certo.
             </h1>
 
-            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed animate-in fade-in duration-700 delay-150 fill-mode-both">
               Sites complexos, bots de Discord, repositórios e melhorias de
               sistemas. Desenvolvimento sério, com prazo, garantia e
-              pagamento seguro via PIX.
+              pagamento seguro via PIX ou cartão.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10 animate-in fade-in zoom-in-95 duration-700 delay-200 fill-mode-both">
               <Link href="/solicitar">
                 <Button
                   size="lg"
@@ -57,11 +62,12 @@ export function Home() {
                   Solicitar meu projeto <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="#como-funciona">
+              <Link href="/como-funciona">
                 <Button
                   size="lg"
                   variant="outline"
                   className="h-12 px-7 text-base font-semibold border-slate-300 text-slate-900 hover:bg-slate-50"
+                  data-testid="button-hero-how"
                 >
                   Ver como funciona
                 </Button>
@@ -69,17 +75,27 @@ export function Home() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-slate-600">
-              <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Pagamento via PIX</span>
+              <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> PIX e cartão</span>
               <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Confirmação automática</span>
               <span className="inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Garantia de entrega</span>
               <span className="inline-flex items-center gap-2"><BrazilFlag className="w-4 h-3" /> Feito no Brasil</span>
             </div>
+
+            {/* Scroll cue */}
+            <a
+              href="#stats"
+              className="mt-16 inline-flex flex-col items-center gap-1 text-xs text-slate-500 hover:text-primary transition-colors"
+              aria-label="Rolar para baixo"
+            >
+              <span>Veja mais</span>
+              <ChevronDown className="w-4 h-4 animate-bounce" />
+            </a>
           </div>
         </div>
       </section>
 
       {/* Trust strip */}
-      <section className="border-b border-border bg-white">
+      <section id="stats" className="border-b border-border bg-white">
         <div className="container mx-auto px-4 md:px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {stats.map((s, i) => (
             <div key={i}>
@@ -108,7 +124,7 @@ export function Home() {
             {services.map((s, i) => (
               <Card
                 key={i}
-                className="bg-white border-border hover:border-primary/40 hover:shadow-lg hover:shadow-blue-600/5 transition-all"
+                className="bg-white border-border hover:border-primary/40 hover:shadow-lg hover:shadow-blue-600/5 hover:-translate-y-0.5 transition-all duration-200"
                 data-testid={`card-service-${i}`}
               >
                 <CardContent className="p-6 flex flex-col">
@@ -128,15 +144,15 @@ export function Home() {
           <div className="text-center mt-10">
             <Link href="/solicitar">
               <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-white">
-                Solicitar orçamento sob medida <ArrowRight className="ml-2 h-4 w-4" />
+                Calcular meu valor agora <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Process */}
-      <section id="como-funciona" className="py-24 bg-white border-y border-border">
+      {/* Process teaser */}
+      <section className="py-24 bg-white border-y border-border">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <Badge variant="outline" className="bg-blue-50 text-primary border-blue-200 mb-4">Processo simples</Badge>
@@ -144,13 +160,13 @@ export function Home() {
               Do briefing ao deploy em 3 passos
             </h2>
             <p className="text-slate-600 text-lg">
-              Sem reuniões intermináveis. Você descreve o que precisa, paga via PIX e nós entregamos.
+              Sem reuniões intermináveis. Você descreve, paga via PIX ou cartão, e nós entregamos.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {process.map((p, i) => (
-              <div key={i} className="relative bg-slate-50/60 border border-border rounded-xl p-6">
+            {processSteps.map((p, i) => (
+              <div key={i} className="relative bg-slate-50/60 border border-border rounded-xl p-6 hover:border-primary/40 transition-colors">
                 <span className="absolute -top-3 left-6 bg-primary text-primary-foreground text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-md">
                   {i + 1}
                 </span>
@@ -160,6 +176,48 @@ export function Home() {
               </div>
             ))}
           </div>
+
+          <div className="text-center mt-12">
+            <Link href="/como-funciona">
+              <Button variant="ghost" className="text-primary font-semibold">
+                Quero entender em detalhes <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Payment methods strip */}
+      <section className="py-16 bg-gradient-to-b from-white to-blue-50/30 border-b border-border">
+        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
+              Pague do jeito que preferir
+            </h2>
+            <p className="text-slate-600">
+              Tudo processado pelo Mercado Pago, com confirmação automática.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="flex items-center gap-4 p-5 bg-white border border-border rounded-xl">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 text-primary flex items-center justify-center shrink-0">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">PIX</p>
+                <p className="text-sm text-slate-600">QR Code instantâneo, confirmação em segundos.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-5 bg-white border border-border rounded-xl">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 text-primary flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">Cartão de Crédito</p>
+                <p className="text-sm text-slate-600">Até 12x no checkout seguro do Mercado Pago.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -168,7 +226,7 @@ export function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-4 gap-5">
             {guarantees.map((g, i) => (
-              <div key={i} className="flex items-start gap-3 p-5 bg-white border border-border rounded-lg">
+              <div key={i} className="flex items-start gap-3 p-5 bg-white border border-border rounded-lg hover:border-primary/40 hover:shadow-sm transition-all">
                 <div className="w-10 h-10 rounded-md bg-blue-50 text-primary flex items-center justify-center shrink-0">
                   <g.icon className="w-5 h-5" />
                 </div>
@@ -194,7 +252,7 @@ export function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <Card key={i} className="bg-white border-border">
+              <Card key={i} className="bg-white border-border hover:border-primary/40 hover:shadow-lg hover:shadow-blue-600/5 transition-all">
                 <CardContent className="p-6">
                   <div className="flex gap-0.5 mb-4 text-amber-400">
                     {Array.from({ length: 5 }).map((_, n) => (
@@ -205,9 +263,12 @@ export function Home() {
                     &ldquo;{t.quote}&rdquo;
                   </p>
                   <div className="flex items-center gap-3 pt-4 border-t border-border">
-                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
-                      {t.initials}
-                    </div>
+                    <img
+                      src={t.avatar}
+                      alt={t.name}
+                      loading="lazy"
+                      className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                    />
                     <div>
                       <p className="font-semibold text-slate-900 text-sm">{t.name}</p>
                       <p className="text-xs text-muted-foreground">{t.role}</p>
@@ -221,14 +282,14 @@ export function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 bg-slate-900 text-white">
+      <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.25),transparent_60%)]" />
         <div className="container mx-auto px-4 md:px-6 text-center max-w-3xl">
           <h2 className="text-3xl md:text-5xl font-bold mb-5 tracking-tight">
             Pronto para tirar seu projeto do papel?
           </h2>
           <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
-            Descreva o que você precisa, defina seu orçamento e receba um link
-            de pagamento PIX seguro em segundos.
+            Descreva o que você precisa. O valor é calculado automaticamente e você recebe um link de pagamento seguro em segundos.
           </p>
           <Link href="/solicitar">
             <Button
@@ -240,7 +301,7 @@ export function Home() {
             </Button>
           </Link>
           <p className="text-xs text-slate-400 mt-6 inline-flex items-center gap-2">
-            <Lock className="w-3.5 h-3.5" /> Pagamento seguro via PIX &middot; Mercado Pago
+            <Lock className="w-3.5 h-3.5" /> Pagamento seguro &middot; Mercado Pago
           </p>
         </div>
       </section>
@@ -282,16 +343,16 @@ const services = [
   },
 ];
 
-const process = [
+const processSteps = [
   {
     icon: Zap,
     title: "1. Você descreve o projeto",
-    desc: "Conte o que precisa em detalhes. Categoria, escopo e orçamento — leva menos de 3 minutos.",
+    desc: "Conte o que precisa em detalhes. O valor é calculado automaticamente conforme você escreve.",
   },
   {
     icon: ShieldCheck,
-    title: "2. Pagamento PIX seguro",
-    desc: "Receba um QR Code único do Mercado Pago. A confirmação é automática em segundos.",
+    title: "2. Pague via PIX ou cartão",
+    desc: "Checkout seguro do Mercado Pago. Confirmação em segundos, sem burocracia.",
   },
   {
     icon: Layers,
@@ -301,7 +362,7 @@ const process = [
 ];
 
 const guarantees = [
-  { icon: Lock, title: "Pagamento seguro", desc: "PIX processado pelo Mercado Pago, com criptografia ponta a ponta." },
+  { icon: Lock, title: "Pagamento seguro", desc: "PIX e cartão processados pelo Mercado Pago, com criptografia ponta a ponta." },
   { icon: Clock, title: "Prazo combinado", desc: "Cronograma definido antes de começar, sem surpresas." },
   { icon: RefreshCcw, title: "Reembolso garantido", desc: "Devolução integral antes do desenvolvimento começar." },
   { icon: ShieldCheck, title: "Código com qualidade", desc: "Código limpo, comentado e seguindo boas práticas da indústria." },
@@ -309,21 +370,24 @@ const guarantees = [
 
 const testimonials = [
   {
-    quote: "Entrega impecável. O bot do Discord ficou muito além das minhas expectativas, com painel próprio.",
-    name: "Lucas M.",
+    quote:
+      "Entrega impecável. O bot do Discord ficou muito além das minhas expectativas, com painel próprio.",
+    name: "Lucas Martins",
     role: "Comunidade gamer",
-    initials: "LM",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
   },
   {
-    quote: "Receberam meu briefing de manhã e à noite eu já tinha o link de pagamento. Profissional do começo ao fim.",
-    name: "Renata S.",
+    quote:
+      "Receberam meu briefing de manhã e à noite eu já tinha o link de pagamento. Profissional do começo ao fim.",
+    name: "Renata Souza",
     role: "Loja online",
-    initials: "RS",
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
   },
   {
-    quote: "Refatoraram o backend do meu sistema antigo e a performance melhorou demais. Recomendo.",
-    name: "Tiago A.",
+    quote:
+      "Refatoraram o backend do meu sistema antigo e a performance melhorou demais. Recomendo.",
+    name: "Tiago Almeida",
     role: "Startup SaaS",
-    initials: "TA",
+    avatar: "https://randomuser.me/api/portraits/men/68.jpg",
   },
 ];

@@ -20,9 +20,11 @@ import type {
   BtcUriResponse,
   CreateOrderBody,
   ErrorResponse,
+  EstimateQuoteBody,
   GetBtcUriParams,
   HealthStatus,
   Order,
+  QuoteEstimate,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -285,6 +287,97 @@ export function useGetOrder<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Computes a server-side price estimate based on the project's category,
+description length and detected complexity keywords. The estimate is
+deterministic and bounded between R$ 200 and R$ 50.000. Returned as
+integer cents.
+
+ * @summary Estimate project price from category and description
+ */
+export const getEstimateQuoteUrl = () => {
+  return `/api/quote/estimate`;
+};
+
+export const estimateQuote = async (
+  estimateQuoteBody: EstimateQuoteBody,
+  options?: RequestInit,
+): Promise<QuoteEstimate> => {
+  return customFetch<QuoteEstimate>(getEstimateQuoteUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(estimateQuoteBody),
+  });
+};
+
+export const getEstimateQuoteMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof estimateQuote>>,
+    TError,
+    { data: BodyType<EstimateQuoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof estimateQuote>>,
+  TError,
+  { data: BodyType<EstimateQuoteBody> },
+  TContext
+> => {
+  const mutationKey = ["estimateQuote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof estimateQuote>>,
+    { data: BodyType<EstimateQuoteBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return estimateQuote(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type EstimateQuoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof estimateQuote>>
+>;
+export type EstimateQuoteMutationBody = BodyType<EstimateQuoteBody>;
+export type EstimateQuoteMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Estimate project price from category and description
+ */
+export const useEstimateQuote = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof estimateQuote>>,
+    TError,
+    { data: BodyType<EstimateQuoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof estimateQuote>>,
+  TError,
+  { data: BodyType<EstimateQuoteBody> },
+  TContext
+> => {
+  return useMutation(getEstimateQuoteMutationOptions(options));
+};
 
 /**
  * @summary Build a BIP21 Bitcoin URI for a given amount

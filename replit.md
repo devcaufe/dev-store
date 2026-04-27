@@ -4,10 +4,12 @@
 
 Plataforma profissional de desenvolvimento digital (Dev Store BR — Soluções
 Digitais). Marca pública = "Dev Store BR" 🇧🇷.
-Cliente envia uma solicitação de projeto, define o valor manualmente e recebe um
-link de pagamento com QR Code PIX dinâmico (BR Code EMV-MPM com CRC16
-recalculado pelo backend), suporte a Bitcoin (BIP21) e placeholder para
-cartão de crédito/débito (a ser plugado a um gateway PCI-compliant).
+Cliente descreve o projeto e o valor é **calculado automaticamente no servidor**
+(`lib/pricing.ts`, R$ 200 a R$ 50.000, arredondado a R$ 50) — o cliente nunca
+envia preço. Um endpoint `POST /api/quote/estimate` retorna o valor + breakdown
+ao vivo enquanto o usuário digita. Pagamento aceita PIX (QR Code Mercado Pago
+com confirmação automática via webhook HMAC), Cartão (Mercado Pago Checkout Pro,
+até 12x, redirect) e Bitcoin (BIP21).
 
 ## Stack
 
