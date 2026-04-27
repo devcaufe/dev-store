@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: orders
+    description: Project order requests and payment generation
+  - name: payments
+    description: Payment instrument helpers (PIX, BTC)
 paths:
   /healthz:
     get:
@@ -24,6 +28,85 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a new project order
+      description: |
+        Creates a new project request. The server validates inputs, persists the
+        order, and (for PIX) generates the dynamic BR Code payload + QR image.
+        The amount is server-controlled via the validated input — never trust a
+        client-provided BR Code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /orders/{publicToken}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Retrieve an order by its public token
+      parameters:
+        - in: path
+          name: publicToken
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /payments/btc-uri:
+    get:
+      operationId: getBtcUri
+      tags: [payments]
+      summary: Build a BIP21 Bitcoin URI for a given amount
+      parameters:
+        - in: query
+          name: amountCents
+          required: true
+          schema:
+            type: integer
+            minimum: 500
+            maximum: 5000000
+      responses:
+        "200":
+          description: BTC URI
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BtcUriResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +116,130 @@ components:
           type: string
       required:
         - status
-
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+      required:
+        - error
+        - code
+    PaymentMethod:
+      type: string
+      enum: [pix, btc, card]
+    OrderCategory:
+      type: string
+      enum: [website, discord_bot, repository, improvement, other]
+    CreateOrderBody:
+      type: object
+      properties:
+        clientName:
+          type: string
+          minLength: 2
+          maxLength: 80
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 254
+        category:
+          $ref: "#/components/schemas/OrderCategory"
+        title:
+          type: string
+          minLength: 4
+          maxLength: 120
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        amountCents:
+          type: integer
+          minimum: 500
+          maximum: 5000000
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+      required:
+        - clientName
+        - contactEmail
+        - category
+        - title
+        - description
+        - amountCents
+        - paymentMethod
+    PixPayload:
+      type: object
+      properties:
+        brCode:
+          type: string
+          description: EMV BR Code payload string
+        qrImageDataUrl:
+          type: string
+          description: PNG QR code as data URL
+        amountCents:
+          type: integer
+        merchantName:
+          type: string
+        merchantCity:
+          type: string
+      required:
+        - brCode
+        - qrImageDataUrl
+        - amountCents
+        - merchantName
+        - merchantCity
+    BtcUriResponse:
+      type: object
+      properties:
+        uri:
+          type: string
+        address:
+          type: string
+        amountBtc:
+          type: string
+        qrImageDataUrl:
+          type: string
+      required:
+        - uri
+        - address
+        - amountBtc
+        - qrImageDataUrl
+    Order:
+      type: object
+      properties:
+        publicToken:
+          type: string
+        category:
+          $ref: "#/components/schemas/OrderCategory"
+        title:
+          type: string
+        amountCents:
+          type: integer
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        status:
+          type: string
+          enum: [pending, awaiting_payment, paid, cancelled]
+        createdAt:
+          type: string
+          format: date-time
+        pix:
+          oneOf:
+            - $ref: "#/components/schemas/PixPayload"
+            - type: "null"
+        btc:
+          oneOf:
+            - $ref: "#/components/schemas/BtcUriResponse"
+            - type: "null"
+        cardCheckoutUrl:
+          oneOf:
+            - type: string
+            - type: "null"
+      required:
+        - publicToken
+        - category
+        - title
+        - amountCents
+        - paymentMethod
+        - status
+        - createdAt

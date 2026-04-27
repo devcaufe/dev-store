@@ -8,3 +8,100 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface ErrorResponse {
+  error: string;
+  code: string;
+}
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
+
+export const PaymentMethod = {
+  pix: "pix",
+  btc: "btc",
+  card: "card",
+} as const;
+
+export type OrderCategory = (typeof OrderCategory)[keyof typeof OrderCategory];
+
+export const OrderCategory = {
+  website: "website",
+  discord_bot: "discord_bot",
+  repository: "repository",
+  improvement: "improvement",
+  other: "other",
+} as const;
+
+export interface CreateOrderBody {
+  /**
+   * @minLength 2
+   * @maxLength 80
+   */
+  clientName: string;
+  /** @maxLength 254 */
+  contactEmail: string;
+  category: OrderCategory;
+  /**
+   * @minLength 4
+   * @maxLength 120
+   */
+  title: string;
+  /**
+   * @minLength 10
+   * @maxLength 2000
+   */
+  description: string;
+  /**
+   * @minimum 500
+   * @maximum 5000000
+   */
+  amountCents: number;
+  paymentMethod: PaymentMethod;
+}
+
+export interface PixPayload {
+  /** EMV BR Code payload string */
+  brCode: string;
+  /** PNG QR code as data URL */
+  qrImageDataUrl: string;
+  amountCents: number;
+  merchantName: string;
+  merchantCity: string;
+}
+
+export interface BtcUriResponse {
+  uri: string;
+  address: string;
+  amountBtc: string;
+  qrImageDataUrl: string;
+}
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
+
+export const OrderStatus = {
+  pending: "pending",
+  awaiting_payment: "awaiting_payment",
+  paid: "paid",
+  cancelled: "cancelled",
+} as const;
+
+export interface Order {
+  publicToken: string;
+  category: OrderCategory;
+  title: string;
+  amountCents: number;
+  paymentMethod: PaymentMethod;
+  status: OrderStatus;
+  createdAt: string;
+  pix?: PixPayload | null;
+  btc?: BtcUriResponse | null;
+  cardCheckoutUrl?: string | null;
+}
+
+export type GetBtcUriParams = {
+  /**
+   * @minimum 500
+   * @maximum 5000000
+   */
+  amountCents: number;
+};

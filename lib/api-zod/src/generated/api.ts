@@ -14,3 +14,117 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Creates a new project request. The server validates inputs, persists the
+order, and (for PIX) generates the dynamic BR Code payload + QR image.
+The amount is server-controlled via the validated input — never trust a
+client-provided BR Code.
+
+ * @summary Create a new project order
+ */
+export const createOrderBodyClientNameMin = 2;
+export const createOrderBodyClientNameMax = 80;
+
+export const createOrderBodyContactEmailMax = 254;
+
+export const createOrderBodyTitleMin = 4;
+export const createOrderBodyTitleMax = 120;
+
+export const createOrderBodyDescriptionMin = 10;
+export const createOrderBodyDescriptionMax = 2000;
+
+export const createOrderBodyAmountCentsMin = 500;
+export const createOrderBodyAmountCentsMax = 5000000;
+
+export const CreateOrderBody = zod.object({
+  clientName: zod
+    .string()
+    .min(createOrderBodyClientNameMin)
+    .max(createOrderBodyClientNameMax),
+  contactEmail: zod.string().email().max(createOrderBodyContactEmailMax),
+  category: zod.enum([
+    "website",
+    "discord_bot",
+    "repository",
+    "improvement",
+    "other",
+  ]),
+  title: zod.string().min(createOrderBodyTitleMin).max(createOrderBodyTitleMax),
+  description: zod
+    .string()
+    .min(createOrderBodyDescriptionMin)
+    .max(createOrderBodyDescriptionMax),
+  amountCents: zod
+    .number()
+    .min(createOrderBodyAmountCentsMin)
+    .max(createOrderBodyAmountCentsMax),
+  paymentMethod: zod.enum(["pix", "btc", "card"]),
+});
+
+/**
+ * @summary Retrieve an order by its public token
+ */
+export const GetOrderParams = zod.object({
+  publicToken: zod.coerce.string(),
+});
+
+export const GetOrderResponse = zod.object({
+  publicToken: zod.string(),
+  category: zod.enum([
+    "website",
+    "discord_bot",
+    "repository",
+    "improvement",
+    "other",
+  ]),
+  title: zod.string(),
+  amountCents: zod.number(),
+  paymentMethod: zod.enum(["pix", "btc", "card"]),
+  status: zod.enum(["pending", "awaiting_payment", "paid", "cancelled"]),
+  createdAt: zod.coerce.date(),
+  pix: zod
+    .union([
+      zod.object({
+        brCode: zod.string().describe("EMV BR Code payload string"),
+        qrImageDataUrl: zod.string().describe("PNG QR code as data URL"),
+        amountCents: zod.number(),
+        merchantName: zod.string(),
+        merchantCity: zod.string(),
+      }),
+      zod.null(),
+    ])
+    .optional(),
+  btc: zod
+    .union([
+      zod.object({
+        uri: zod.string(),
+        address: zod.string(),
+        amountBtc: zod.string(),
+        qrImageDataUrl: zod.string(),
+      }),
+      zod.null(),
+    ])
+    .optional(),
+  cardCheckoutUrl: zod.union([zod.string(), zod.null()]).optional(),
+});
+
+/**
+ * @summary Build a BIP21 Bitcoin URI for a given amount
+ */
+export const getBtcUriQueryAmountCentsMin = 500;
+export const getBtcUriQueryAmountCentsMax = 5000000;
+
+export const GetBtcUriQueryParams = zod.object({
+  amountCents: zod.coerce
+    .number()
+    .min(getBtcUriQueryAmountCentsMin)
+    .max(getBtcUriQueryAmountCentsMax),
+});
+
+export const GetBtcUriResponse = zod.object({
+  uri: zod.string(),
+  address: zod.string(),
+  amountBtc: zod.string(),
+  qrImageDataUrl: zod.string(),
+});

@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "WeQKIc2Y-KEswSQZV2-tQ"
+uri = "file://artifacts/site/public/hero-bg.png"
+type = "image"
+title = "Abstract tech background for hero"
+
+[[generated]]
+id = "OVWoN0PVPeJ9qoRxlQexY"
+uri = "file://artifacts/site/public/showcase-1.png"
+type = "image"
+title = "Complex website project preview"
+
+[[generated]]
+id = "haNhb4igc2niNuowbTqxa"
+uri = "file://artifacts/site/public/showcase-2.png"
+type = "image"
+title = "Discord bot dashboard preview"
+
+[[generated]]
+id = "KxZ3i603zEJsyhL_CwsiJ"
+uri = "file://artifacts/site/public/showcase-3.png"
+type = "image"
+title = "Code repository architecture"

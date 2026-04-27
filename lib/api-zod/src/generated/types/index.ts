@@ -6,4 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./btcUriResponse";
+export * from "./createOrderBody";
+export * from "./errorResponse";
+export * from "./getBtcUriParams";
 export * from "./healthStatus";
+export * from "./order";
+export * from "./orderCategory";
+export * from "./orderStatus";
+export * from "./paymentMethod";
+export * from "./pixPayload";
