@@ -1,12 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateOrderBody } from "@workspace/api-zod";
-import {
-  useCreateOrder,
-  useEstimateQuote,
-} from "@workspace/api-client-react";
+import { useCreateOrder } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,15 +32,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { BrazilFlag } from "@/components/brazil-flag";
 import {
   CreditCard,
   QrCode,
   Bitcoin,
   Loader2,
   ArrowRight,
-  Calculator,
   CheckCircle2,
-  Sparkles,
   ShieldCheck,
 } from "lucide-react";
 
@@ -66,8 +62,6 @@ export function RequestProject() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const createOrder = useCreateOrder();
-  const estimateMutation = useEstimateQuote();
-  const estimate = estimateMutation.data;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(CreateOrderBody),
@@ -84,26 +78,6 @@ export function RequestProject() {
   const description = form.watch("description");
   const category = form.watch("category");
   const paymentMethod = form.watch("paymentMethod");
-
-  // Debounced live estimate as the user types.
-  const [debouncedDesc, setDebouncedDesc] = useState(description);
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedDesc(description), 350);
-    return () => clearTimeout(t);
-  }, [description]);
-
-  useEffect(() => {
-    const desc = (debouncedDesc ?? "").trim();
-    if (desc.length < 10) return;
-    estimateMutation.mutate({ category, description: desc });
-  }, [debouncedDesc, category]);
-
-  const liveValue = estimate?.amountCents ?? null;
-
-  const breakdown = useMemo(() => {
-    if (!estimate) return [] as { label: string; deltaCents: number }[];
-    return estimate.factors;
-  }, [estimate]);
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -142,11 +116,10 @@ export function RequestProject() {
           Solicitar Projeto
         </h1>
         <p className="text-lg text-muted-foreground">
-          Preencha os detalhes abaixo. O valor é{" "}
-          <span className="text-primary font-semibold">
-            calculado automaticamente
-          </span>{" "}
-          conforme você descreve.
+          Preencha os detalhes abaixo. O preço é{" "}
+          <span className="text-primary font-semibold">fixo</span> por tipo de
+          projeto. A descrição detalhada só serve para entender o que precisa
+          ser feito.
         </p>
       </div>
 
@@ -156,7 +129,7 @@ export function RequestProject() {
           <CardHeader>
             <CardTitle>Detalhes da solicitação</CardTitle>
             <CardDescription>
-              Quanto mais detalhes na descrição, mais precisa fica a estimativa.
+              Quanto mais detalhes na descrição, melhor entendemos o escopo.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -265,21 +238,18 @@ export function RequestProject() {
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         Descrição detalhada
-                        {estimateMutation.isPending && (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                        )}
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Conte o que precisa: funcionalidades principais, integrações (login, pagamento, APIs), tipos de usuário, prazos, etc. Quanto mais detalhes, mais precisa a estimativa."
+                          placeholder="Conte o que precisa: funcionalidades principais, integrações (login, pagamento, APIs), tipos de usuário, prazos, etc."
                           className="min-h-[180px] resize-y"
                           {...field}
                         />
                       </FormControl>
                       <FormDescription className="flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
-                        O valor é calculado automaticamente conforme você
-                        escreve.
+                        <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                        A descrição serve para orientar o trabalho, não para
+                        calcular preço.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -398,67 +368,36 @@ export function RequestProject() {
           </CardContent>
         </Card>
 
-        {/* Live quote panel */}
+        {/* Logo panel */}
         <div className="lg:sticky lg:top-24">
-          <Card className="border-primary/30 bg-white shadow-md">
+          <Card className="border-primary/30 bg-white shadow-md overflow-hidden">
             <CardHeader className="bg-blue-50/40 border-b border-primary/10">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Calculator className="w-4 h-4 text-primary" /> Valor estimado
+                <img
+                  src={`${import.meta.env.BASE_URL}logo.png`}
+                  alt="Dev Store BR"
+                  className="w-8 h-8 rounded-md object-cover bg-slate-900"
+                />
+                Dev Store BR
               </CardTitle>
               <CardDescription>
-                Calculado automaticamente conforme você descreve.
+                Preço fixo por projeto, sem estimativa variável.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="text-center mb-5">
-                {liveValue == null ? (
-                  <p className="text-sm text-muted-foreground py-6">
-                    Comece a descrever seu projeto para ver o valor.
-                  </p>
-                ) : (
-                  <>
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-                      Total estimado
-                    </p>
-                    <p
-                      className="text-4xl font-extrabold text-primary tracking-tight"
-                      data-testid="text-estimate-value"
-                    >
-                      {formatBRL(liveValue)}
-                    </p>
-                  </>
-                )}
+              <div className="flex flex-col items-center text-center">
+                <img
+                  src={`${import.meta.env.BASE_URL}logo.png`}
+                  alt="Logo Dev Store BR"
+                  className="w-44 h-44 rounded-3xl object-cover shadow-lg border border-border"
+                />
+                <p className="mt-5 text-sm text-muted-foreground max-w-xs">
+                  A descrição detalhada ajuda a definir o que fazer. O preço é
+                  combinado previamente.
+                </p>
               </div>
-
-              {breakdown.length > 0 && (
-                <>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-                    Como chegamos nesse valor
-                  </p>
-                  <ul className="space-y-2 text-sm">
-                    {breakdown.map((b, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start justify-between gap-3 border-b border-border last:border-0 pb-2 last:pb-0"
-                      >
-                        <span className="flex items-start gap-2 text-slate-700">
-                          <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                          {b.label}
-                        </span>
-                        <span className="font-mono text-xs text-slate-600 shrink-0">
-                          + {formatBRL(b.deltaCents)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-
               <div className="mt-6 pt-5 border-t border-border text-xs text-muted-foreground leading-relaxed">
-                Estimativa entre{" "}
-                <span className="font-semibold text-slate-700">R$ 200</span> e{" "}
-                <span className="font-semibold text-slate-700">R$ 50.000</span>.
-                O valor pode ser revisado por escopo após contato.
+                Sem cálculo automático. Sem surpresa no preço.
               </div>
             </CardContent>
           </Card>
