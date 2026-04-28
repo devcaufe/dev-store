@@ -95,8 +95,7 @@ export function RequestProject() {
   useEffect(() => {
     const desc = (debouncedDesc ?? "").trim();
     if (desc.length < 10) return;
-    estimateMutation.mutate({ data: { category, description: desc } });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    estimateMutation.mutate({ category, description: desc });
   }, [debouncedDesc, category]);
 
   const liveValue = estimate?.amountCents ?? null;

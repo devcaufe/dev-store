@@ -1,6 +1,5 @@
 import { useParams, Link } from "wouter";
 import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useGetOrder, getGetOrderQueryKey } from "@workspace/api-client-react";
 import {
   Card,
@@ -38,7 +37,6 @@ export function OrderSuccess() {
   const publicToken = params.publicToken || "";
   const { toast } = useToast();
 
-  const queryClient = useQueryClient();
   const { data: order, isLoading, error } = useGetOrder(publicToken, {
     query: {
       enabled: !!publicToken,
@@ -60,8 +58,6 @@ export function OrderSuccess() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order?.status]);
-
-  void queryClient;
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -373,13 +369,11 @@ function CardCheckoutBlock({
   url: string | null | undefined;
   amountCents: number;
 }) {
-  // Auto-redirect to Mercado Pago Checkout once on first paint, in a new tab
-  // would block popups; we use a same-tab redirect for reliability.
   useEffect(() => {
     if (url) {
       const t = setTimeout(() => {
         window.location.href = url;
-      }, 1200);
+      }, 800);
       return () => clearTimeout(t);
     }
   }, [url]);

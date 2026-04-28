@@ -38,7 +38,7 @@ export function Support() {
               <CardDescription>Ainda com dúvidas? Fale comigo diretamente.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <a href="https://discord.gg/devcaufe" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-full p-3 rounded-md bg-card border border-border hover:border-primary/50 transition-colors group">
+              <a href="https://discord.gg/hzvyJECrA" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-full p-3 rounded-md bg-card border border-border hover:border-primary/50 transition-colors group">
                 <div className="w-10 h-10 rounded-full bg-[#5865F2]/20 flex items-center justify-center shrink-0">
                   <MessageSquare className="w-5 h-5 text-[#5865F2] group-hover:scale-110 transition-transform" />
                 </div>

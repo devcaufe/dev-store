@@ -109,7 +109,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <a
-              href="https://discord.gg/devcaufe"
+              href="https://discord.gg/hzvyJECrA"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center w-14 h-14 rounded-full bg-[#5865F2] hover:bg-[#4752C4] text-white shadow-lg transition-all hover:scale-110"
