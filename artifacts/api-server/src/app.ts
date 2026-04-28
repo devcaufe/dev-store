@@ -1,11 +1,30 @@
-import express, { type Express, type Request, type Response } from "express";
+import express, {
+  type Express,
+  type Request,
+  type Response,
+  type RequestHandler,
+} from "express";
 import cors from "cors";
-import helmet from "helmet";
-import { pinoHttp } from "pino-http";
+import { createRequire } from "node:module";
+// Type-only side-effect import: pulls in pino-http's `req.log` declaration
+// merging on Express's Request without forcing a value-level (callable) import.
+import type {} from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { errorHandler } from "./middlewares/errorHandler";
 import { globalLimiter } from "./middlewares/rateLimit";
+
+// helmet and pino-http are published as CommonJS. Loading them via
+// createRequire avoids ESM-interop ambiguity (TS2349 "not callable") under
+// strict downstream typecheckers (e.g. Vercel's auto build validation) that
+// don't honour `esModuleInterop` from a project's local tsconfig.
+const nodeRequire = createRequire(import.meta.url);
+type HelmetOptions = Record<string, unknown>;
+type PinoHttpOptions = Record<string, unknown>;
+const helmet = nodeRequire("helmet") as (opts?: HelmetOptions) => RequestHandler;
+const pinoHttp = nodeRequire("pino-http") as (
+  opts?: PinoHttpOptions,
+) => RequestHandler;
 
 const app: Express = express();
 
