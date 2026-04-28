@@ -370,12 +370,11 @@ function CardCheckoutBlock({
   amountCents: number;
 }) {
   useEffect(() => {
-    if (url) {
-      const t = setTimeout(() => {
-        window.location.href = url;
-      }, 800);
-      return () => clearTimeout(t);
-    }
+    if (!url) return;
+    const t = setTimeout(() => {
+      window.location.href = url;
+    }, 800);
+    return () => clearTimeout(t);
   }, [url]);
 
   if (!url) {

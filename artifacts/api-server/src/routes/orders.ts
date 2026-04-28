@@ -178,7 +178,7 @@ router.get("/orders/:publicToken", async (req, res, next) => {
     ) {
       try {
         const remote = await fetchMercadoPagoPayment(current.mpPaymentId);
-        if (remote.status === "approved" && current.status !== "paid") {
+        if (remote.status === "approved") {
           const [updated] = await db
             .update(ordersTable)
             .set({ status: "paid" })

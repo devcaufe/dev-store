@@ -33,9 +33,8 @@ export function ComoFunciona() {
             em um fluxo simples e seguro.
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
-            Sem reuniões intermináveis, sem orçamentos demorados. Você descreve
-            o que precisa, o valor é calculado automaticamente e você paga
-            quando estiver pronto.
+            Sem reuniões intermináveis, sem orçamento demorado. Você descreve
+            o que precisa, escolhe a forma de pagamento e a gente entrega.
           </p>
           <Link href="/solicitar">
             <Button size="lg" className="h-12 px-7 text-base font-semibold shadow-md shadow-blue-600/20">
@@ -201,7 +200,7 @@ export function ComoFunciona() {
             Tudo claro? Vamos começar.
           </h2>
           <p className="text-slate-300 mb-8 max-w-xl mx-auto">
-            Em menos de 3 minutos você descreve o projeto e já vê o valor calculado.
+            Em menos de 3 minutos você descreve o projeto e recebe o link de pagamento.
           </p>
           <Link href="/solicitar">
             <Button size="lg" className="h-12 px-7 text-base font-semibold bg-primary hover:bg-blue-500 text-white shadow-xl shadow-blue-500/30">
@@ -218,7 +217,7 @@ const steps: Array<{ icon: typeof PencilLine; title: string; desc: string; bulle
   {
     icon: PencilLine,
     title: "Descreva o que você precisa",
-    desc: "Conte o objetivo do projeto, funcionalidades principais e qualquer integração necessária. Quanto mais detalhes, mais preciso o valor.",
+    desc: "Conte o objetivo do projeto, funcionalidades principais e qualquer integração necessária. Quanto mais detalhes, melhor entendemos o escopo.",
     bullets: [
       "Categoria (site, bot, repositório, melhoria, etc.)",
       "Lista de funcionalidades",
@@ -227,12 +226,12 @@ const steps: Array<{ icon: typeof PencilLine; title: string; desc: string; bulle
   },
   {
     icon: Calculator,
-    title: "Veja o valor calculado automaticamente",
-    desc: "Conforme você escreve, o sistema calcula o valor com base na categoria, complexidade e funcionalidades detectadas. Sem espera por orçamento.",
+    title: "Preço fixo, sem surpresa",
+    desc: "Cada categoria tem um valor fixo combinado previamente. Nada de orçamento variável: você já sabe quanto vai pagar antes mesmo de enviar.",
     bullets: [
-      "Cálculo deterministicamente baseado em regras claras",
-      "Mostramos a base e cada acréscimo no detalhamento",
-      "Você sabe exatamente porque está pagando aquilo",
+      "Valor fixo por categoria de projeto",
+      "Sem cálculo automático ou estimativa",
+      "Combinamos o escopo antes de iniciar",
     ],
   },
   {
@@ -266,8 +265,8 @@ const guarantees = [
 
 const faq = [
   {
-    q: "Como o valor é calculado?",
-    a: "O sistema avalia a categoria do projeto, o tamanho da descrição e detecta palavras-chave de complexidade (autenticação, pagamentos, dashboard, integrações, IA, mobile, etc.). Cada elemento adiciona um valor fixo, e você vê o detalhamento na tela do pedido.",
+    q: "Como o valor é definido?",
+    a: "Cada categoria de projeto (site, bot Discord, repositório, melhoria) tem um valor fixo combinado previamente. Não trabalhamos com estimativa variável: você sabe exatamente quanto vai pagar antes de fechar.",
   },
   {
     q: "Posso pagar com cartão de crédito?",

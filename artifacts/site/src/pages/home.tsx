@@ -38,7 +38,7 @@ export function Home() {
               variant="outline"
               className="mb-6 bg-white text-primary border-blue-200 px-4 py-1.5 inline-flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-500"
             >
-              <Sparkles className="w-3.5 h-3.5" /> Vagas abertas para abril/maio
+              <Sparkles className="w-3.5 h-3.5" /> Crie seu projeto agora
             </Badge>
 
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.05] animate-in fade-in slide-in-from-bottom-3 duration-700">
@@ -132,10 +132,9 @@ export function Home() {
                     <s.icon className="w-5 h-5" />
                   </div>
                   <h3 className="text-base font-bold text-slate-900 mb-2">{s.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed mb-4 flex-1">
+                  <p className="text-sm text-slate-600 leading-relaxed flex-1">
                     {s.description}
                   </p>
-                  <p className="text-xs font-semibold text-primary">A partir de {s.from}</p>
                 </CardContent>
               </Card>
             ))}
@@ -144,7 +143,7 @@ export function Home() {
           <div className="text-center mt-10">
             <Link href="/solicitar">
               <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-white">
-                Calcular meu valor agora <ArrowRight className="ml-2 h-4 w-4" />
+                Solicitar meu projeto <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -289,7 +288,7 @@ export function Home() {
             Pronto para tirar seu projeto do papel?
           </h2>
           <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
-            Descreva o que você precisa. O valor é calculado automaticamente e você recebe um link de pagamento seguro em segundos.
+            Descreva o que você precisa e receba um link de pagamento seguro em segundos. Preço fixo, sem orçamento demorado.
           </p>
           <Link href="/solicitar">
             <Button
@@ -321,25 +320,21 @@ const services = [
     title: "Sites Complexos",
     icon: TerminalSquare,
     description: "Aplicações web, dashboards, painéis administrativos e landing pages de alta conversão.",
-    from: "R$ 800",
   },
   {
     title: "Bots de Discord",
     icon: Code2,
     description: "Bots com economia, moderação avançada, integração de APIs e painéis web de controle.",
-    from: "R$ 350",
   },
   {
     title: "Arquitetura & Repos",
     icon: Database,
     description: "Estruturação de repositórios, CI/CD, banco de dados e arquitetura backend.",
-    from: "R$ 500",
   },
   {
     title: "Melhorias em Sistemas",
     icon: Cpu,
     description: "Refatoração, otimização de performance, correção de bugs e novas features.",
-    from: "R$ 300",
   },
 ];
 
@@ -347,7 +342,7 @@ const processSteps = [
   {
     icon: Zap,
     title: "1. Você descreve o projeto",
-    desc: "Conte o que precisa em detalhes. O valor é calculado automaticamente conforme você escreve.",
+    desc: "Conte o que precisa em detalhes. O preço é fixo por categoria — você já sabe quanto vai pagar.",
   },
   {
     icon: ShieldCheck,

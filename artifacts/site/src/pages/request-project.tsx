@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateOrderBody } from "@workspace/api-zod";
@@ -43,23 +43,33 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+type Category =
+  | "website"
+  | "discord_bot"
+  | "repository"
+  | "improvement"
+  | "other";
+
 type FormValues = {
   clientName: string;
   contactEmail: string;
-  category: "website" | "discord_bot" | "repository" | "improvement" | "other";
+  category: Category;
   title: string;
   description: string;
   paymentMethod: "pix" | "btc" | "card";
 };
 
-const formatBRL = (cents: number) =>
-  new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(cents / 100);
+const VALID_CATEGORIES: Category[] = [
+  "website",
+  "discord_bot",
+  "repository",
+  "improvement",
+  "other",
+];
 
 export function RequestProject() {
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const { toast } = useToast();
   const createOrder = useCreateOrder();
 
@@ -75,8 +85,16 @@ export function RequestProject() {
     },
   });
 
-  const description = form.watch("description");
-  const category = form.watch("category");
+  // Pre-select category if landing from /solicitar?categoria=...
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const cat = params.get("categoria");
+    if (cat && (VALID_CATEGORIES as string[]).includes(cat)) {
+      form.setValue("category", cat as Category);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const paymentMethod = form.watch("paymentMethod");
 
   const onSubmit = async (data: FormValues) => {
@@ -115,12 +133,6 @@ export function RequestProject() {
         <h1 className="text-4xl font-bold mb-4 text-slate-900">
           Solicitar Projeto
         </h1>
-        <p className="text-lg text-muted-foreground">
-          Preencha os detalhes abaixo. O preço é{" "}
-          <span className="text-primary font-semibold">fixo</span> por tipo de
-          projeto. A descrição detalhada só serve para entender o que precisa
-          ser feito.
-        </p>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-8 items-start">
@@ -391,9 +403,8 @@ export function RequestProject() {
                   alt="Logo Dev Store BR"
                   className="w-44 h-44 rounded-3xl object-cover shadow-lg border border-border"
                 />
-                <p className="mt-5 text-sm text-muted-foreground max-w-xs">
-                  A descrição detalhada ajuda a definir o que fazer. O preço é
-                  combinado previamente.
+                <p className="mt-5 text-base font-semibold text-slate-900 max-w-xs">
+                  Tire sua ideia do papel
                 </p>
               </div>
               <div className="mt-6 pt-5 border-t border-border text-xs text-muted-foreground leading-relaxed">
